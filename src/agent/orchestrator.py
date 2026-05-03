@@ -33,8 +33,43 @@ class TaskAgent:
         }
         self.conversation_history = [self.system_prompt]
 
+    def _needs_clarification(self, user_input: str) -> str | None:
+        text = user_input.lower()
+
+        appointment_keywords = ["randevu", "appointment", "book", "booking", "schedule", "ayarla", "rezerve", "reserve"]
+        search_keywords = ["find", "search", "ara", "bul", "look for"]
+
+        has_appointment_intent = any(keyword in text for keyword in appointment_keywords)
+        has_search_intent = any(keyword in text for keyword in search_keywords)
+
+        if has_appointment_intent:
+            missing_time = not any(keyword in text for keyword in ["today", "tomorrow", "next", "morning", "afternoon", "evening", ":", "am", "pm", "saat", "gün", "hafta"])
+            missing_location = not any(keyword in text for keyword in ["istanbul", "ankara", "warsaw", "city", "clinic", "dentist", "doctor", "office"])
+
+            if missing_time or missing_location:
+                return (
+                    "I can help with that. Please tell me: 1) the preferred date or time, "
+                    "2) the location or clinic/city, and 3) any time preference (morning/afternoon/evening)."
+                )
+
+        if has_search_intent:
+            missing_location = not any(keyword in text for keyword in ["istanbul", "ankara", "warsaw", "paris", "london", "city", "near me"])
+            if missing_location:
+                return (
+                    "I can search for options, but I need the location first. Please tell me the city or area, "
+                    "and any budget or preference you have."
+                )
+
+        return None
+
     def process_input(self, user_input: str) -> str:
         self.conversation_history.append({"role": "user", "content": user_input})
+
+        clarification = self._needs_clarification(user_input)
+        if clarification:
+            self.conversation_history.append({"role": "assistant", "content": clarification})
+            return clarification
+
         while True:
             response = self.client.chat.completions.create(
                 model=self.model,
