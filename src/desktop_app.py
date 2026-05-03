@@ -11,7 +11,7 @@ from src.agent import TaskAgent
 class ChatDesktopApp:
     def __init__(self) -> None:
         self.root = tk.Tk()
-        self.root.title("AI Agent Chat")
+        self.root.title("AI Chat")
         self.root.geometry("860x640")
         self.root.minsize(720, 520)
 
@@ -36,12 +36,12 @@ class ChatDesktopApp:
         container = ttk.Frame(self.root, padding=18)
         container.pack(fill="both", expand=True)
 
-        title = ttk.Label(container, text="AI Agent Chat", font=("Segoe UI", 20, "bold"))
+        title = ttk.Label(container, text="AI Chat", font=("Segoe UI", 20, "bold"))
         title.pack(anchor="w", pady=(0, 12))
 
         subtitle = ttk.Label(
             container,
-            text="Ask a question, request a booking, or ask for a search. The assistant will reply in a separate app window.",
+            text="Press Enter to send. Use Shift+Enter for a new line.",
             wraplength=760,
         )
         subtitle.pack(anchor="w", pady=(0, 10))
@@ -52,16 +52,66 @@ class ChatDesktopApp:
             height=24,
             font=("Segoe UI", 11),
             state="disabled",
-            padx=12,
-            pady=12,
+            padx=14,
+            pady=14,
+            background="#fbfcfe",
+            relief="solid",
+            borderwidth=1,
         )
         self.chat_area.pack(fill="both", expand=True, pady=(0, 12))
+        self.chat_area.tag_configure(
+            "user",
+            background="#dff1ff",
+            foreground="#0f172a",
+            justify="right",
+            lmargin1=120,
+            lmargin2=120,
+            rmargin=16,
+            spacing1=8,
+            spacing3=8,
+        )
+        self.chat_area.tag_configure(
+            "agent",
+            background="#eef2f7",
+            foreground="#0f172a",
+            justify="left",
+            lmargin1=16,
+            lmargin2=16,
+            rmargin=120,
+            spacing1=8,
+            spacing3=8,
+        )
+        self.chat_area.tag_configure(
+            "system",
+            background="#fff7d6",
+            foreground="#4b5563",
+            justify="left",
+            lmargin1=16,
+            lmargin2=16,
+            rmargin=120,
+            spacing1=6,
+            spacing3=6,
+        )
+        self.chat_area.tag_configure(
+            "error",
+            background="#ffe4e6",
+            foreground="#9f1239",
+            justify="left",
+            lmargin1=16,
+            lmargin2=16,
+            rmargin=120,
+            spacing1=6,
+            spacing3=6,
+        )
+        self.chat_area.tag_configure("sender", font=("Segoe UI", 10, "bold"))
 
         input_frame = ttk.Frame(container)
         input_frame.pack(fill="x")
 
         self.input_text = tk.Text(input_frame, height=4, font=("Segoe UI", 11), wrap="word")
         self.input_text.pack(side="left", fill="x", expand=True)
+        self.input_text.bind("<Return>", self._send_from_shortcut)
+        self.input_text.bind("<Shift-Return>", self._insert_newline)
         self.input_text.bind("<Control-Return>", self._send_from_shortcut)
 
         button_frame = ttk.Frame(input_frame)
@@ -78,19 +128,20 @@ class ChatDesktopApp:
         status_bar.pack(fill="x", pady=(10, 0))
 
         self._append_system_message(
-            "Welcome! Press Ctrl+Enter or click Send to ask a question.\n"
-            "Try: 'Bana bir dişçi randevusu ayarla' or 'Find hotels in Warsaw'."
+            "Ready. Ask a question or request a task to begin."
         )
 
     def _send_from_shortcut(self, event: tk.Event) -> str:
         self.send_message()
         return "break"
 
+    def _insert_newline(self, event: tk.Event) -> str:
+        self.input_text.insert(tk.INSERT, "\n")
+        return "break"
+
     def _clear_chat(self) -> None:
         self._set_chat_text("")
-        self._append_system_message(
-            "Chat cleared. Ask a new question to start again."
-        )
+        self._append_system_message("Chat cleared.")
 
     def _set_chat_text(self, text: str) -> None:
         self.chat_area.configure(state="normal")
@@ -100,16 +151,16 @@ class ChatDesktopApp:
         self.chat_area.configure(state="disabled")
         self.chat_area.see(tk.END)
 
-    def _append_message(self, sender: str, content: str) -> None:
+    def _append_message(self, sender: str, content: str, tag: str) -> None:
         self.chat_area.configure(state="normal")
-        self.chat_area.insert(tk.END, f"{sender}:\n", "sender")
-        self.chat_area.insert(tk.END, f"{content}\n\n")
+        self.chat_area.insert(tk.END, f"{sender}:\n", ("sender", tag))
+        self.chat_area.insert(tk.END, f"{content}\n\n", tag)
         self.chat_area.configure(state="disabled")
         self.chat_area.see(tk.END)
 
     def _append_system_message(self, content: str) -> None:
         self.chat_area.configure(state="normal")
-        self.chat_area.insert(tk.END, f"System:\n{content}\n\n")
+        self.chat_area.insert(tk.END, f"System:\n{content}\n\n", ("sender", "system"))
         self.chat_area.configure(state="disabled")
         self.chat_area.see(tk.END)
 
@@ -128,7 +179,7 @@ class ChatDesktopApp:
             return
 
         self.input_text.delete("1.0", tk.END)
-        self._append_message("You", prompt)
+        self._append_message("You", prompt, "user")
         self._set_busy(True)
 
         worker = threading.Thread(target=self._generate_reply, args=(prompt,), daemon=True)
@@ -149,9 +200,9 @@ class ChatDesktopApp:
             return
 
         if status == "ok":
-            self._append_message("Agent", payload)
+            self._append_message("Agent", payload, "agent")
         else:
-            self._append_message("Agent", f"Error: {payload}")
+            self._append_message("Agent", f"Error: {payload}", "error")
 
         self._set_busy(False)
         self.root.after(120, self._poll_queue)
