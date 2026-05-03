@@ -304,4 +304,13 @@ Or use the provided one-click launchers:
 
 These launchers run the CLI using the project's virtual environment and open an interactive prompt where you can ask the AI questions.
 
+### Web launcher (starts server and opens browser)
+
+If you want the web UI to open automatically (this avoids VS Code Live Server on port 5500 opening a file list), use the web launcher which starts the FastAPI server and opens the browser at the chat UI:
+
+- Double-click `launch_web.bat` (Windows)
+- Right-click and `Run with PowerShell` on `launch_web.ps1`
+
+If you see a VS Code Live Server (port 5500) file listing, close Live Server and use the launcher above or open `http://127.0.0.1:8001/` manually.
+
 **Built with ❤️ using Python, Groq AI, and uv**
