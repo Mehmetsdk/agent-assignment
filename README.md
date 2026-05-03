@@ -295,9 +295,9 @@ uv run python main.py
 
 ---
 
-## 💬 Quick Start (CLI "Go Live")
+## 💬 Quick Start
 
-If your browser isn't available or you prefer the terminal, start the interactive CLI directly.
+Start the desktop chat app directly from Windows or the terminal.
 
 Windows (PowerShell):
 
@@ -311,15 +311,6 @@ Or use the provided one-click launchers:
 - Double-click `launch_chat.bat` (Windows)
 - Right-click and `Run with PowerShell` on `launch_chat.ps1`
 
-These launchers run the CLI using the project's virtual environment and open an interactive prompt where you can ask the AI questions.
-
-### Web launcher (starts server and opens browser)
-
-If you want the web UI to open automatically (this avoids VS Code Live Server on port 5500 opening a file list), use the web launcher which starts the FastAPI server and opens the browser at the chat UI:
-
-- Double-click `launch_web.bat` (Windows)
-- Right-click and `Run with PowerShell` on `launch_web.ps1`
-
-If you see a VS Code Live Server (port 5500) file listing, close Live Server and use the launcher above or open `http://127.0.0.1:8001/` manually.
+These launchers run the desktop app using the project's virtual environment.
 
 **Built with ❤️ using Python, Groq AI, and uv**
