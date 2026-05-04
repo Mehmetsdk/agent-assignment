@@ -219,6 +219,16 @@ Try these test cases to verify functionality:
    "Book me a dentist appointment next Thursday afternoon"
 ```
 
+Run the automated checks locally:
+
+```bash
+# Run tests
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+
+# Run lint checks
+.\.venv\Scripts\python.exe -m ruff check .
+```
+
 ## 🐛 Error Handling
 
 The agent gracefully handles:

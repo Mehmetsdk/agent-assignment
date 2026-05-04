@@ -1,13 +1,13 @@
-import os
 import json
-import logging
-from typing import Any
+import os
+
 from dotenv import load_dotenv
 from groq import Groq
-from src.tools import TOOL_DEFINITIONS, AVAILABLE_TOOLS
+
+from src.tools import AVAILABLE_TOOLS, TOOL_DEFINITIONS
 
 load_dotenv()
-logger = logging.getLogger(__name__)
+
 
 class TaskAgent:
     def __init__(self, api_key: str | None = None):
@@ -28,13 +28,28 @@ class TaskAgent:
                 "3. Use the provided tools to check calendars, search for options, book items, and set reminders. "
                 "4. If a tool fails or finds no results, apologize and ask the user how they would like to proceed. "
                 "5. Do not add a final summary unless the user explicitly asks for one. Answer directly and concisely."
-            )
+            ),
         }
         self.conversation_history = [self.system_prompt]
 
     def _detect_language(self, user_input: str) -> str:
         text = user_input.lower()
-        turkish_markers = ["ı", "ş", "ğ", "ç", "ö", "ü", " merhaba", " nasılsın", "randevu", "saat", "yardım", "bana", "lütfen", "çünkü"]
+        turkish_markers = [
+            "ı",
+            "ş",
+            "ğ",
+            "ç",
+            "ö",
+            "ü",
+            " merhaba",
+            " nasılsın",
+            "randevu",
+            "saat",
+            "yardım",
+            "bana",
+            "lütfen",
+            "çünkü",
+        ]
         if any(marker in text for marker in turkish_markers):
             return "Turkish"
         return "English"
@@ -48,15 +63,52 @@ class TaskAgent:
         text = user_input.lower()
         language = self._detect_language(user_input)
 
-        appointment_keywords = ["randevu", "appointment", "book", "booking", "schedule", "ayarla", "rezerve", "reserve"]
+        appointment_keywords = [
+            "randevu",
+            "appointment",
+            "book",
+            "booking",
+            "schedule",
+            "ayarla",
+            "rezerve",
+            "reserve",
+        ]
         search_keywords = ["find", "search", "ara", "bul", "look for"]
 
         has_appointment_intent = any(keyword in text for keyword in appointment_keywords)
         has_search_intent = any(keyword in text for keyword in search_keywords)
 
         if has_appointment_intent:
-            missing_time = not any(keyword in text for keyword in ["today", "tomorrow", "next", "morning", "afternoon", "evening", ":", "am", "pm", "saat", "gün", "hafta"])
-            missing_location = not any(keyword in text for keyword in ["istanbul", "ankara", "warsaw", "city", "clinic", "dentist", "doctor", "office"])
+            missing_time = not any(
+                keyword in text
+                for keyword in [
+                    "today",
+                    "tomorrow",
+                    "next",
+                    "morning",
+                    "afternoon",
+                    "evening",
+                    ":",
+                    "am",
+                    "pm",
+                    "saat",
+                    "gün",
+                    "hafta",
+                ]
+            )
+            missing_location = not any(
+                keyword in text
+                for keyword in [
+                    "istanbul",
+                    "ankara",
+                    "warsaw",
+                    "city",
+                    "clinic",
+                    "dentist",
+                    "doctor",
+                    "office",
+                ]
+            )
 
             if missing_time or missing_location:
                 if language == "Turkish":
@@ -70,7 +122,18 @@ class TaskAgent:
                 )
 
         if has_search_intent:
-            missing_location = not any(keyword in text for keyword in ["istanbul", "ankara", "warsaw", "paris", "london", "city", "near me"])
+            missing_location = not any(
+                keyword in text
+                for keyword in [
+                    "istanbul",
+                    "ankara",
+                    "warsaw",
+                    "paris",
+                    "london",
+                    "city",
+                    "near me",
+                ]
+            )
             if missing_location:
                 if language == "Turkish":
                     return (
@@ -101,13 +164,10 @@ class TaskAgent:
         while True:
             messages = self.conversation_history + [language_instruction]
             response = self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                tools=TOOL_DEFINITIONS,
-                tool_choice="auto"
+                model=self.model, messages=messages, tools=TOOL_DEFINITIONS, tool_choice="auto"
             )
             message = response.choices[0].message
-            if hasattr(message, 'tool_calls') and message.tool_calls:
+            if hasattr(message, "tool_calls") and message.tool_calls:
                 self.conversation_history.append(message)
                 for tool_call in message.tool_calls:
                     function_name = tool_call.function.name
@@ -121,12 +181,14 @@ class TaskAgent:
                         tool_result = tool_to_call(**function_args)
                     else:
                         tool_result = json.dumps({"error": f"Unknown tool: {function_name}"})
-                    self.conversation_history.append({
-                        "role": "tool",
-                        "tool_call_id": tool_call.id,
-                        "name": function_name,
-                        "content": tool_result
-                    })
+                    self.conversation_history.append(
+                        {
+                            "role": "tool",
+                            "tool_call_id": tool_call.id,
+                            "name": function_name,
+                            "content": tool_result,
+                        }
+                    )
             else:
                 base_response = message.content
                 self.conversation_history.append({"role": "assistant", "content": base_response})

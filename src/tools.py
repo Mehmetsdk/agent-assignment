@@ -1,47 +1,54 @@
 import json
 
+
 def calendar_check(date_range: str) -> str:
     """Belirtilen tarih aralığı için takvim müsaitliğini kontrol eder."""
     print(f"🔧 [ARAÇ TETİKLENDİ]: Takvim kontrol ediliyor -> {date_range}")
     # Gerçek bir senaryoda burada Google Calendar veya Outlook API çağrılır.
-    return json.dumps({
-        "status": "success",
-        "available": True,
-        "message": f"{date_range} tarihleri arasında takviminiz müsait."
-    })
+    return json.dumps(
+        {
+            "status": "success",
+            "available": True,
+            "message": f"{date_range} tarihleri arasında takviminiz müsait.",
+        }
+    )
+
 
 def search_service(query: str) -> str:
     """İstenen konsept, mekan veya hizmet için arama yapar."""
     print(f"🔧 [ARAÇ TETİKLENDİ]: Arama yapılıyor -> {query}")
     # Gerçek bir senaryoda burada Google Search, Yelp veya veritabanı API'si çalışır.
-    return json.dumps({
-        "status": "success",
-        "results": [
-            f"Seçenek 1: {query} (Bütçe dostu, yüksek puanlı)",
-            f"Seçenek 2: {query} (Premium, merkezi konum)"
-        ]
-    })
+    return json.dumps(
+        {
+            "status": "success",
+            "results": [
+                f"Seçenek 1: {query} (Bütçe dostu, yüksek puanlı)",
+                f"Seçenek 2: {query} (Premium, merkezi konum)",
+            ],
+        }
+    )
+
 
 def booking_service(option: str) -> str:
     """Belirtilen seçenek için rezervasyon veya satın alma işlemini gerçekleştirir."""
     print(f"🔧 [ARAÇ TETİKLENDİ]: Rezervasyon yapılıyor -> {option}")
     # Gerçek bir senaryoda burada ödeme sistemi veya rezervasyon API'si devreye girer.
-    return json.dumps({
-        "status": "success",
-        "booking_ref": "BKG-778899",
-        "message": f"'{option}' başarıyla rezerve edildi."
-    })
+    return json.dumps(
+        {
+            "status": "success",
+            "booking_ref": "BKG-778899",
+            "message": f"'{option}' başarıyla rezerve edildi.",
+        }
+    )
+
 
 def reminder_create(details: str) -> str:
     """Gerçekleşen işlemler için takvime hatırlatıcı ekler."""
     print(f"🔧 [ARAÇ TETİKLENDİ]: Hatırlatıcı kuruluyor -> {details}")
-    return json.dumps({
-        "status": "success",
-        "message": f"Hatırlatıcı başarıyla eklendi: {details}"
-    })
+    return json.dumps({"status": "success", "message": f"Hatırlatıcı başarıyla eklendi: {details}"})
 
 
-# OpenAI API'sinin bu fonksiyonları anlayıp kullanabilmesi için gereken JSON şemaları
+# LLM'in bu fonksiyonları anlayıp kullanabilmesi için gereken JSON şemaları
 TOOL_DEFINITIONS = [
     {
         "type": "function",
@@ -51,11 +58,14 @@ TOOL_DEFINITIONS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "date_range": {"type": "string", "description": "The date or time range to check (e.g., 'next Tuesday afternoon', '2023-11-15')."}
+                    "date_range": {
+                        "type": "string",
+                        "description": "The date or time range to check (e.g., 'next Tuesday afternoon', '2023-11-15').",
+                    }
                 },
-                "required": ["date_range"]
-            }
-        }
+                "required": ["date_range"],
+            },
+        },
     },
     {
         "type": "function",
@@ -65,11 +75,14 @@ TOOL_DEFINITIONS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "query": {"type": "string", "description": "The specific search query (e.g., '3 coworking spaces in Warsaw under $20/day')."}
+                    "query": {
+                        "type": "string",
+                        "description": "The specific search query (e.g., '3 coworking spaces in Warsaw under $20/day').",
+                    }
                 },
-                "required": ["query"]
-            }
-        }
+                "required": ["query"],
+            },
+        },
     },
     {
         "type": "function",
@@ -79,11 +92,14 @@ TOOL_DEFINITIONS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "option": {"type": "string", "description": "The exact option or details to book."}
+                    "option": {
+                        "type": "string",
+                        "description": "The exact option or details to book.",
+                    }
                 },
-                "required": ["option"]
-            }
-        }
+                "required": ["option"],
+            },
+        },
     },
     {
         "type": "function",
@@ -93,12 +109,15 @@ TOOL_DEFINITIONS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "details": {"type": "string", "description": "Details of the reminder to be created."}
+                    "details": {
+                        "type": "string",
+                        "description": "Details of the reminder to be created.",
+                    }
                 },
-                "required": ["details"]
-            }
-        }
-    }
+                "required": ["details"],
+            },
+        },
+    },
 ]
 
 # LLM'in string olarak döndürdüğü fonksiyon ismini, gerçek Python fonksiyonuyla eşleştiren sözlük
@@ -106,5 +125,5 @@ AVAILABLE_TOOLS = {
     "calendar_check": calendar_check,
     "search_service": search_service,
     "booking_service": booking_service,
-    "reminder_create": reminder_create
+    "reminder_create": reminder_create,
 }
