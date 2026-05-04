@@ -29,6 +29,7 @@ class TaskAgent:
         self.conversation_history = [
             {"role": "system", "content": self.base_system_instruction},
         ]
+        self.has_produced_assistant_reply = False
 
     def _detect_language(self, user_input: str) -> str:
         text = user_input.lower()
@@ -186,12 +187,13 @@ class TaskAgent:
         return None
 
     def process_input(self, user_input: str) -> str:
-        language = self._detect_language(user_input)
+        language = "English" if not self.has_produced_assistant_reply else self._detect_language(user_input)
         self.conversation_history.append({"role": "user", "content": user_input})
 
         clarification = self._needs_clarification(user_input)
         if clarification:
             self.conversation_history.append({"role": "assistant", "content": clarification})
+            self.has_produced_assistant_reply = True
             return clarification
 
         base_response = self._generate_with_tools(language)
@@ -211,4 +213,5 @@ class TaskAgent:
         )
         summary_content = summary_response.choices[0].message.content or ""
         self.conversation_history.append({"role": "assistant", "content": summary_content})
+        self.has_produced_assistant_reply = True
         return f"{base_response}\n\n{'='*60}\n📋 FINAL SUMMARY:\n{'='*60}\n{summary_content}"

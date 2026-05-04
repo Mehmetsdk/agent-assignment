@@ -60,7 +60,7 @@ cp .env.example .env
 GROQ_API_KEY=your_groq_api_key_here
 ```
 
-### Running the Agent (CLI)
+### Running the Agent (Popup UI)
 
 ```bash
 uv run python main.py
@@ -74,9 +74,9 @@ Or using the virtual environment directly:
 
 ## 📖 Usage
 
-When the app starts, you'll see the terminal chat prompt.
+When the app starts, a desktop popup window will open.
 
-Type your request and press **Enter**.
+Type your request into the input box and press **Enter** or click **Send**.
 
 Examples:
 
@@ -97,7 +97,7 @@ agent-assignment/
 ├── pyproject.toml            # Project metadata and dependencies
 ├── uv.lock                   # Locked dependencies
 ├── README.md                 # This file
-├── main.py                   # CLI entry point
+├── main.py                   # Desktop app entry point
 └── src/
    ├── agent/
    │   ├── __init__.py       # Exports TaskAgent
@@ -165,7 +165,7 @@ Each tool includes mock implementations for demonstration.
 
 The agent uses a carefully engineered system prompt that:
 
-- ✅ Ensures ENGLISH-only responses (regardless of input language)
+- ✅ Starts with English on the first reply, then mirrors the user's language
 - ✅ Enforces clarifying questions for missing information
 - ✅ Guides tool usage and error handling
 - ✅ Requires structured final summaries
@@ -281,9 +281,11 @@ uv run python -m unittest discover -s tests -v
 # Run lint
 uv run python -m ruff check .
 
-# Run the agent
+# Run the desktop app
 uv run python main.py
 ```
+
+If the popup window does not appear, make sure the application is launched from the project root and that your `GROQ_API_KEY` is set in `.env`.
 
 ### Contributing
 

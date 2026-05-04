@@ -48,6 +48,7 @@ class AgentTest(unittest.TestCase):
         agent.model = "llama-3.3-70b-versatile"
         agent.base_system_instruction = "stub"
         agent.conversation_history = [{"role": "system", "content": "stub"}]
+        agent.has_produced_assistant_reply = False
         return agent
 
     def test_clarification_is_turkish(self):
