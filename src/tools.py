@@ -3,7 +3,7 @@ import json
 
 def calendar_check(date_range: str) -> str:
     """Belirtilen tarih aralığı için takvim müsaitliğini kontrol eder."""
-    print(f"🔧 [ARAÇ TETİKLENDİ]: Takvim kontrol ediliyor -> {date_range}")
+    print(f"[TOOL]: calendar_check -> {date_range}")
     return json.dumps(
         {
             "status": "success",
@@ -15,7 +15,7 @@ def calendar_check(date_range: str) -> str:
 
 def search_service(query: str) -> str:
     """İstenen konsept, mekan veya hizmet için arama yapar."""
-    print(f"🔧 [ARAÇ TETİKLENDİ]: Arama yapılıyor -> {query}")
+    print(f"[TOOL]: search_service -> {query}")
     return json.dumps(
         {
             "status": "success",
@@ -29,7 +29,7 @@ def search_service(query: str) -> str:
 
 def booking_service(option: str) -> str:
     """Belirtilen seçenek için rezervasyon veya satın alma işlemini gerçekleştirir."""
-    print(f"🔧 [ARAÇ TETİKLENDİ]: Rezervasyon yapılıyor -> {option}")
+    print(f"[TOOL]: booking_service -> {option}")
     return json.dumps(
         {
             "status": "success",
@@ -41,7 +41,7 @@ def booking_service(option: str) -> str:
 
 def reminder_create(details: str) -> str:
     """Gerçekleşen işlemler için takvime hatırlatıcı ekler."""
-    print(f"🔧 [ARAÇ TETİKLENDİ]: Hatırlatıcı kuruluyor -> {details}")
+    print(f"[TOOL]: reminder_create -> {details}")
     return json.dumps({"status": "success", "message": f"Hatırlatıcı başarıyla eklendi: {details}"})
 
 
